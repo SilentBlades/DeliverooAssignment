@@ -3,6 +3,8 @@ package com.deliverooassignment.cron;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
+
 public class CronExpression {
     private final SortedSet<Integer> minute, hour, dayOfMonth, month, dayOfWeek;
     private final String command;
@@ -22,6 +24,10 @@ public class CronExpression {
     }
 
     public static CronExpression parse(String line) {
+        if(isNull(line) || line.isEmpty()) {
+            throw new IllegalArgumentException("Cron line is null/empty");
+        }
+
         String[] parameters = line.trim().split("\\s+", 6);
         if (parameters.length < 6) {
             throw new IllegalArgumentException("Cron line must have 6 parameters");
