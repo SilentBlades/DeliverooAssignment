@@ -10,7 +10,7 @@ public enum Field {
     DAY_OF_WEEK("day of week", 1, 7);
 
     public static Map<String, Integer> DAYS_OF_WEEK = Map.ofEntries(
-            Map.entry("SUN", 0), Map.entry("MON", 1), Map.entry("TUE", 2),
+            Map.entry("SUN", 7), Map.entry("MON", 1), Map.entry("TUE", 2),
             Map.entry("WED", 3), Map.entry("THURS", 4), Map.entry("FRI", 5),
             Map.entry("SAT", 6)
     );

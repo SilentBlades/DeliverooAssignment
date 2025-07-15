@@ -108,10 +108,10 @@ public class FieldParser {
 
                 if(start > end) {
                     int i = start;
-                    for (; i < max; i++) {
+                    for (; i <= max; i++) {
                         result.add(i);
                     }
-                    for(int j = min; j <= start - end; j++) {
+                    for(int j = min; j <= end; j++) {
                         result.add(j);
                     }
                 }
