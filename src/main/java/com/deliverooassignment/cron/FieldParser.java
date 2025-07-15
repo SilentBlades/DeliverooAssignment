@@ -2,6 +2,7 @@ package com.deliverooassignment.cron;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 /**
  * This method parses each segment of the cron. Each segment of the cron could be:
@@ -37,7 +38,6 @@ import java.util.TreeSet;
 public class FieldParser {
     public static SortedSet<Integer> parse(String spec, int min, int max) {
         SortedSet<Integer> result = new TreeSet<>();
-
         // 1. limits
         for (String segment : spec.split(",")) {
             // 2. Wildcard
@@ -49,6 +49,7 @@ public class FieldParser {
             // 3. Step
             else if (segment.contains("/")) {
                 String[] split = segment.split("/");
+
                 if(split.length != 2 || split[0].isEmpty() || split[1].isEmpty()) {
                     throw new IllegalArgumentException("Invalid step specified: " + segment);
                 }
@@ -65,8 +66,16 @@ public class FieldParser {
                     if(bounds.length != 2 || bounds[0].isEmpty() || bounds[1].isEmpty()) {
                         throw new IllegalArgumentException("Invalid range in step: " + segment);
                     }
-                    start = Integer.parseInt(bounds[0]);
-                    end   = Integer.parseInt(bounds[1]);
+                    if (Pattern.compile("[A-Z]")
+                            .matcher(bounds[0]).find()) {
+                        start = Field.mapNameToNumber(bounds[0]);
+                    } else if (Pattern.compile("[A-Z]")
+                            .matcher(bounds[1]).find()) {
+                        end = Field.mapNameToNumber(bounds[1]);
+                    } else {
+                        start = Integer.parseInt(bounds[0]);
+                        end = Integer.parseInt(bounds[1]);
+                    }
                     if(start > end) {
                         throw new IllegalArgumentException("Incorrect range specified: " + segment);
                     }
@@ -84,10 +93,27 @@ public class FieldParser {
                 if(bounds.length != 2 || bounds[0].isEmpty() || bounds[1].isEmpty()) {
                     throw new IllegalArgumentException("Invalid range in step: " + segment);
                 }
-                int start = Integer.parseInt(bounds[0]);
-                int end   = Integer.parseInt(bounds[1]);
+                int start = min, end = max;
+
+                if (Pattern.compile("[A-Z]")
+                        .matcher(bounds[0]).find() && Pattern.compile("[A-Z]")
+                        .matcher(bounds[1]).find()) {
+                    start = Field.mapNameToNumber(bounds[0]);
+                    end = Field.mapNameToNumber(bounds[1]);
+                }
+                else {
+                    start = Integer.parseInt(bounds[0]);
+                    end = Integer.parseInt(bounds[1]);
+                }
+
                 if(start > end) {
-                    throw new IllegalArgumentException("Incorrect range specified: " + segment);
+                    int i = start;
+                    for (; i < max; i++) {
+                        result.add(i);
+                    }
+                    for(int j = min; j <= start - end; j++) {
+                        result.add(j);
+                    }
                 }
                 if(start < min || end > max) {
                     throw new IllegalArgumentException("Segment is out of bounds: " + segment);
